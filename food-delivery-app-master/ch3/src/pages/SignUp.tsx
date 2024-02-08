@@ -7,30 +7,24 @@ import {
   Text,
   TextInput,
   View,
-  ActivityIndicator,
 } from 'react-native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import {RootStackParamList} from '../../App';
 import DismissKeyboardView from '../components/DismissKeyboardView';
 import axios, {AxiosError} from 'axios';
 import Config from 'react-native-config';
-import {RootStackParamList} from '../../AppInner';
 
 type SignUpScreenProps = NativeStackScreenProps<RootStackParamList, 'SignUp'>;
 
 function SignUp({navigation}: SignUpScreenProps) {
-  const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const emailRef = useRef<TextInput | null>(null);
-  const nameRef = useRef<TextInput | null>(null);
   const passwordRef = useRef<TextInput | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const onChangeEmail = useCallback(text => {
     setEmail(text.trim());
-  }, []);
-  const onChangeName = useCallback(text => {
-    setName(text.trim());
   }, []);
   const onChangePassword = useCallback(text => {
     setPassword(text.trim());
@@ -41,9 +35,6 @@ function SignUp({navigation}: SignUpScreenProps) {
     }
     if (!email || !email.trim()) {
       return Alert.alert('알림', '이메일을 입력해주세요.');
-    }
-    if (!name || !name.trim()) {
-      return Alert.alert('알림', '이름을 입력해주세요.');
     }
     if (!password || !password.trim()) {
       return Alert.alert('알림', '비밀번호를 입력해주세요.');
@@ -61,14 +52,18 @@ function SignUp({navigation}: SignUpScreenProps) {
         '비밀번호는 영문,숫자,특수문자($@^!%*#?&)를 모두 포함하여 8자 이상 입력해야합니다.',
       );
     }
-    console.log(email, name, password);
+    console.log(email, password);
     try {
       setLoading(true);
-      const response = await axios.post(`${Config.API_URL}/user`, {
-        email,
-        name,
-        password,
-      });
+      console.log(`${Config.API_URL_PAPAYATEST}members/new`);
+      console.log('http://52.91.159.245:8080/members/new');
+      const response = await axios.post(
+        `${Config.API_URL_PAPAYATEST}members/new`,
+        {
+          name: email,
+          password: password,
+        },
+      );
       console.log(response.data);
       Alert.alert('알림', '회원가입 되었습니다.');
       navigation.navigate('SignIn');
@@ -81,9 +76,8 @@ function SignUp({navigation}: SignUpScreenProps) {
     } finally {
       setLoading(false);
     }
-  }, [loading, navigation, email, name, password]);
-
-  const canGoNext = email && name && password;
+  }, [loading, navigation, email, password]);
+  const canGoNext = email && password;
   return (
     <DismissKeyboardView>
       <View style={styles.inputWrapper}>
@@ -98,23 +92,6 @@ function SignUp({navigation}: SignUpScreenProps) {
           returnKeyType="next"
           clearButtonMode="while-editing"
           ref={emailRef}
-          onSubmitEditing={() => nameRef.current?.focus()}
-          blurOnSubmit={false}
-        />
-      </View>
-      <View style={styles.inputWrapper}>
-        <Text style={styles.label}>이름</Text>
-        <TextInput
-          style={styles.textInput}
-          placeholder="이름을 입력해주세요."
-          placeholderTextColor="#666"
-          onChangeText={onChangeName}
-          value={name}
-          textContentType="name"
-          returnKeyType="next"
-          clearButtonMode="while-editing"
-          ref={nameRef}
-          onSubmitEditing={() => passwordRef.current?.focus()}
           blurOnSubmit={false}
         />
       </View>
@@ -142,13 +119,9 @@ function SignUp({navigation}: SignUpScreenProps) {
               ? StyleSheet.compose(styles.loginButton, styles.loginButtonActive)
               : styles.loginButton
           }
-          disabled={!canGoNext || loading}
+          disabled={!canGoNext}
           onPress={onSubmit}>
-          {loading ? (
-            <ActivityIndicator color="white" />
-          ) : (
-            <Text style={styles.loginButtonText}>회원가입</Text>
-          )}
+          <Text style={styles.loginButtonText}>회원가입</Text>
         </Pressable>
       </View>
     </DismissKeyboardView>

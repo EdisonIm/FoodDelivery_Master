@@ -28,6 +28,7 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 function App() {
   const [isLoggedIn, setLoggedIn] = useState(false);
   return (
+    // eslint-disable-next-line no-undef
     <Provider store={store}>
       <NavigationContainer>
         {isLoggedIn ? (

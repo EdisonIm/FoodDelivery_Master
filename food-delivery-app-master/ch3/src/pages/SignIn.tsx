@@ -9,18 +9,14 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-import EncryptedStorage from 'react-native-encrypted-storage';
 import DismissKeyboardView from '../components/DismissKeyboardView';
 import axios, {AxiosError} from 'axios';
 import Config from 'react-native-config';
 import {RootStackParamList} from '../../AppInner';
-import {useAppDispatch} from '../store';
-import userSlice from '../slices/user';
 
 type SignInScreenProps = NativeStackScreenProps<RootStackParamList, 'SignIn'>;
 
 function SignIn({navigation}: SignInScreenProps) {
-  const dispatch = useAppDispatch();
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -45,23 +41,16 @@ function SignIn({navigation}: SignInScreenProps) {
     }
     try {
       setLoading(true);
-      const response = await axios.post(`${Config.API_URL}/login`, {
-        email,
-        password,
-      });
+      console.log(`${Config.API_URL_PAPAYATEST}members/login`);
+      const response = await axios.post(
+        `${Config.API_URL_PAPAYATEST}members/login`,
+        {
+          name: email,
+          password: password,
+        },
+      );
       console.log(response.data);
       Alert.alert('알림', '로그인 되었습니다.');
-      dispatch(
-        userSlice.actions.setUser({
-          name: response.data.data.name,
-          email: response.data.data.email,
-          accessToken: response.data.data.accessToken,
-        }),
-      );
-      await EncryptedStorage.setItem(
-        'refreshToken',
-        response.data.data.refreshToken,
-      );
     } catch (error) {
       const errorResponse = (error as AxiosError).response;
       if (errorResponse) {
@@ -70,7 +59,7 @@ function SignIn({navigation}: SignInScreenProps) {
     } finally {
       setLoading(false);
     }
-  }, [loading, dispatch, email, password]);
+  }, [loading, email, password]);
 
   const toSignUp = useCallback(() => {
     navigation.navigate('SignUp');
