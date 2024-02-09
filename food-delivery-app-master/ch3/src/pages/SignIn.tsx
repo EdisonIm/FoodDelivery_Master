@@ -13,10 +13,14 @@ import DismissKeyboardView from '../components/DismissKeyboardView';
 import axios, {AxiosError} from 'axios';
 import Config from 'react-native-config';
 import {RootStackParamList} from '../../AppInner';
+import EncryptedStorage from 'react-native-encrypted-storage';
+import userSlice from '../slices/user';
+import {useAppDispatch} from '../store';
 
 type SignInScreenProps = NativeStackScreenProps<RootStackParamList, 'SignIn'>;
 
 function SignIn({navigation}: SignInScreenProps) {
+  const dispatch = useAppDispatch();
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -41,9 +45,10 @@ function SignIn({navigation}: SignInScreenProps) {
     }
     try {
       setLoading(true);
-      console.log(`${Config.API_URL_PAPAYATEST}members/login`);
+      console.log(`${Config.API_URL_PAPAYATEST}/members/login`);
+      console.log('http://52.91.159.245:8080/members/login');
       const response = await axios.post(
-        `${Config.API_URL_PAPAYATEST}members/login`,
+        `${Config.API_URL_PAPAYATEST}/members/login`,
         {
           name: email,
           password: password,
@@ -51,6 +56,17 @@ function SignIn({navigation}: SignInScreenProps) {
       );
       console.log(response.data);
       Alert.alert('알림', '로그인 되었습니다.');
+      dispatch(
+        userSlice.actions.setUser({
+          email: response.data.data.email,
+          accessToken: response.data.data.accessToken,
+          refreshToken: response.data.data.refreshToken,
+        }),
+      );
+      await EncryptedStorage.setItem(
+        'refreshToken',
+        response.data.data.refreshToken,
+      );
     } catch (error) {
       const errorResponse = (error as AxiosError).response;
       if (errorResponse) {
@@ -59,8 +75,7 @@ function SignIn({navigation}: SignInScreenProps) {
     } finally {
       setLoading(false);
     }
-  }, [loading, email, password]);
-
+  }, [loading, dispatch, email, password]);
   const toSignUp = useCallback(() => {
     navigation.navigate('SignUp');
   }, [navigation]);
