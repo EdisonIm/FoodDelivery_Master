@@ -60,8 +60,8 @@ function SignUp({navigation}: SignInScreenProps) {
       const response = await axios.post(
         `${Config.API_URL_PAPAYATEST}/members/new`,
         {
-          name: email,
-          password: password,
+          email,
+          password,
         },
       );
       console.log(response.data);
