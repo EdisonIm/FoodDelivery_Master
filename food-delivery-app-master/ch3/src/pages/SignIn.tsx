@@ -144,7 +144,7 @@ function SignIn({navigation}: SignInScreenProps) {
           <Text>회원가입하기</Text>
         </Pressable>
         <Pressable onPress={toUserProfile}>
-          <Text>사진올리기</Text>
+          <Text>사 진 올 리 기</Text>
         </Pressable>
       </View>
     </DismissKeyboardView>
