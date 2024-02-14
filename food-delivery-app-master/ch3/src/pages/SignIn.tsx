@@ -9,13 +9,14 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import EncryptedStorage from 'react-native-encrypted-storage';
 import DismissKeyboardView from '../components/DismissKeyboardView';
 import axios, {AxiosError} from 'axios';
 import Config from 'react-native-config';
 import {RootStackParamList} from '../../AppInner';
-import EncryptedStorage from 'react-native-encrypted-storage';
-import userSlice from '../slices/user';
 import {useAppDispatch} from '../store';
+import userSlice from '../slices/user';
+import UserProfile from './UserProfile';
 
 type SignInScreenProps = NativeStackScreenProps<RootStackParamList, 'SignIn'>;
 
@@ -46,7 +47,7 @@ function SignIn({navigation}: SignInScreenProps) {
     try {
       setLoading(true);
       console.log(`${Config.API_URL_PAPAYATEST}/members/login`);
-      console.log('http://52.91.159.245:8080/members/login');
+      console.log('http://3.36.115.202:8080/members/login');
       const response = await axios.post(
         `${Config.API_URL_PAPAYATEST}/members/login`,
         {
@@ -58,9 +59,9 @@ function SignIn({navigation}: SignInScreenProps) {
       Alert.alert('알림', '로그인 되었습니다.');
       dispatch(
         userSlice.actions.setUser({
+          name: response.data.data.name,
           email: response.data.data.email,
           accessToken: response.data.data.accessToken,
-          refreshToken: response.data.data.refreshToken,
         }),
       );
       await EncryptedStorage.setItem(
@@ -76,8 +77,13 @@ function SignIn({navigation}: SignInScreenProps) {
       setLoading(false);
     }
   }, [loading, dispatch, email, password]);
+
   const toSignUp = useCallback(() => {
     navigation.navigate('SignUp');
+  }, [navigation]);
+
+  const toUserProfile = useCallback(() => {
+    navigation.navigate('UserProfile');
   }, [navigation]);
 
   const canGoNext = email && password;
@@ -136,6 +142,9 @@ function SignIn({navigation}: SignInScreenProps) {
         </Pressable>
         <Pressable onPress={toSignUp}>
           <Text>회원가입하기</Text>
+        </Pressable>
+        <Pressable onPress={toUserProfile}>
+          <Text>사진올리기</Text>
         </Pressable>
       </View>
     </DismissKeyboardView>

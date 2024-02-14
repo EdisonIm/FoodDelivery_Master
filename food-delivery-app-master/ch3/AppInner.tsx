@@ -17,6 +17,7 @@ import userSlice from './src/slices/user';
 import {useAppDispatch} from './src/store';
 import Config from 'react-native-config';
 import orderSlice from './src/slices/order';
+import UserProfile from './src/pages/UserProfile';
 
 export type LoggedInParamList = {
   Orders: undefined;
@@ -28,6 +29,7 @@ export type LoggedInParamList = {
 export type RootStackParamList = {
   SignIn: undefined;
   SignUp: undefined;
+  UserProfile: undefined;
 };
 
 const Tab = createBottomTabNavigator();
@@ -218,6 +220,11 @@ function AppInner() {
         name="SignUp"
         component={SignUp}
         options={{title: '회원가입'}}
+      />
+      <Tab.Screen
+        name="UserProfile"
+        component={UserProfile}
+        options={{title: '내 정보'}}
       />
     </Stack.Navigator>
   );
