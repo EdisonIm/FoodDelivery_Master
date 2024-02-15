@@ -1,67 +1,73 @@
 import React, {useState} from 'react';
-import {View, TextInput, Button, Text, StyleSheet, Alert} from 'react-native';
+import {View, TextInput, Button, Text, StyleSheet, Alert} from 'react-native'; // 'Text' 컴포넌트 추가
 import axios, {AxiosError} from 'axios';
 import Config from 'react-native-config';
 
-const NameUploadComponent = ({userEmail}: {userEmail: string}) => {
+interface NameUploadComponentProps {
+  userEmail: string;
+}
+
+const NameUploadComponent: React.FC<NameUploadComponentProps> = ({
+  userEmail,
+}) => {
   const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
 
   const handleSubmit = async () => {
+    console.log('Submitting:', {email, name});
     setIsSubmitting(true);
-    setError('');
 
     try {
       const response = await axios.post(
         `${Config.API_URL_PAPAYATEST}/members/name`,
         {
-          email: userEmail,
+          email: email,
           name: name,
         },
-        {
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        },
       );
-
-      // API 호출이 성공하면 실행될 로직
+      console.log('Response:', response.data);
       Alert.alert('굳샷!', '이름이 등록되었습니다^_^!');
-
-      console.log(response.data);
     } catch (catchError) {
-      const e = catchError as AxiosError; // AxiosError 타입을 사용합니다.
+      console.error('Error during submission:', catchError);
+      const e = catchError as AxiosError;
       let errorMessage = '업로드에 실패했습니다. 다시 시도해주세요ㅠ_ㅠ';
       if (e.response) {
-        // 서버 응답이 있는 경우의 에러 처리
         errorMessage += `\n에러 상태 코드: ${e.response.status}`;
       } else if (e.request) {
-        // 요청은 이루어졌지만 응답을 받지 못한 경우
         errorMessage += '\n서버에서 응답을 받지 못했습니다.';
       } else {
-        // 요청 설정 중에 문제가 발생한 경우
         errorMessage += `\n${e.message}`;
       }
       setError(errorMessage);
       Alert.alert('에러', errorMessage);
     } finally {
       setIsSubmitting(false);
+      console.log('Submission completed');
     }
   };
 
   return (
     <View style={styles.container}>
+      <Text>User Email: {userEmail}</Text>
       <TextInput
+        placeholder="이메일 주소"
+        value={email}
+        onChangeText={setEmail}
         style={styles.textInput}
-        placeholder="회원 이름"
+        keyboardType="email-address"
+      />
+      <TextInput
+        placeholder="이름"
         value={name}
         onChangeText={setName}
+        style={styles.textInput}
       />
       <Button
-        title="이름 업로드"
         onPress={handleSubmit}
-        disabled={isSubmitting || name.trim() === ''}
+        title="이름 등록"
+        disabled={isSubmitting || !name || !email}
       />
       {error ? <Text style={styles.errorText}>{error}</Text> : null}
     </View>
@@ -71,10 +77,9 @@ const NameUploadComponent = ({userEmail}: {userEmail: string}) => {
 const styles = StyleSheet.create({
   container: {
     padding: 20,
-    backgroundColor: '#eee',
-    borderRadius: 10,
-    alignItems: 'center',
-    marginTop: 20,
+    backgroundColor: 'white',
+    marginTop: 10,
+    borderRadius: 7,
   },
   textInput: {
     width: '100%',

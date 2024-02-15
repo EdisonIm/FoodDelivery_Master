@@ -10,12 +10,16 @@ import {
 import {launchImageLibrary} from 'react-native-image-picker';
 import useImageUpload from '../hooks/useImageUpload';
 
-const ImageUploadComponent = ({
-  onImageUploaded,
-}: {
+interface ImageUploadComponentProps {
   onImageUploaded: (url: string) => void;
+}
+
+const ImageUploadComponent: React.FC<ImageUploadComponentProps> = ({
+  onImageUploaded,
 }) => {
-  const {handleUploadImage, imageUrl, isUploading, setImage} = useImageUpload();
+  const {handleUploadImage, imageUrl, isUploading, setImage, uploadError} =
+    useImageUpload(onImageUploaded);
+
   const [email, setEmail] = useState('');
 
   const handleSelectPress = () => {
@@ -32,22 +36,19 @@ const ImageUploadComponent = ({
   };
 
   const handleUploadPress = async () => {
-    await handleUploadImage(email); // 수정된 부분: 이메일 상태를 사용
-    if (imageUrl) {
-      onImageUploaded(imageUrl);
-    }
+    await handleUploadImage(email);
   };
 
   return (
     <View style={styles.container}>
       <TextInput
-        style={styles.textInput}
         placeholder="이메일 주소"
         value={email}
         onChangeText={setEmail}
+        style={styles.textInput}
         keyboardType="email-address"
       />
-      <TouchableOpacity style={styles.button} onPress={handleSelectPress}>
+      <TouchableOpacity onPress={handleSelectPress} style={styles.button}>
         <Text style={styles.buttonText}>사진 선택하기</Text>
       </TouchableOpacity>
       <Button
@@ -55,12 +56,9 @@ const ImageUploadComponent = ({
         title="사진 올리기"
         disabled={isUploading || !email}
       />
-
-      {/* isUploading이 true일 때 "업로드 중..." 텍스트 표시 */}
       {isUploading ? <Text>업로드 중...</Text> : null}
-
-      {/* imageUrl이 존재할 때 "업로드 완료: [URL]" 텍스트 표시 */}
       {imageUrl ? <Text>업로드 완료: {imageUrl}</Text> : null}
+      {uploadError ? <Text style={styles.errorText}>{uploadError}</Text> : null}
     </View>
   );
 };
@@ -68,8 +66,8 @@ const ImageUploadComponent = ({
 const styles = StyleSheet.create({
   container: {
     padding: 20,
-    backgroundColor: '#eee',
-    borderRadius: 10,
+    backgroundColor: 'white',
+    borderRadius: 7,
     alignItems: 'center',
   },
   textInput: {
@@ -82,7 +80,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   button: {
-    backgroundColor: '#0066cc',
+    backgroundColor: '#007bff',
     padding: 10,
     borderRadius: 5,
     marginBottom: 10,
@@ -90,6 +88,10 @@ const styles = StyleSheet.create({
   buttonText: {
     color: 'white',
     fontWeight: 'bold',
+  },
+  errorText: {
+    color: 'red',
+    marginTop: 10,
   },
 });
 

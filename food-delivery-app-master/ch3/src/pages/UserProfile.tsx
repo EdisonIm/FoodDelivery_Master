@@ -1,7 +1,8 @@
 import React, {useState} from 'react';
-import {View, Text} from 'react-native';
+import {View, Text, StyleSheet, ScrollView} from 'react-native';
 import ImageUploadComponent from '../components/ImageUploadComponent';
 import NameUploadComponent from '../components/NameUploadComponent';
+import AddressUploadComponent from '../components/AddressUploadComponent';
 
 const UserProfile = () => {
   const userEmail = 'user@example.com';
@@ -9,7 +10,6 @@ const UserProfile = () => {
 
   const handleImageUpload = (url: string) => {
     setUploadedImageUrl(url);
-    // 필요한 경우 서버에 이미지 URL 저장 로직 추가
   };
 
   let uploadedImageText = null;
@@ -18,13 +18,41 @@ const UserProfile = () => {
   }
 
   return (
-    <View>
-      <Text>사용자 프로필 페이지</Text>
-      <ImageUploadComponent onImageUploaded={handleImageUpload} />
-      <NameUploadComponent userEmail={userEmail} />
-      {uploadedImageText}
-    </View>
+    <ScrollView
+      style={styles.scrollView}
+      showsVerticalScrollIndicator={false}
+      scrollEventThrottle={16}>
+      <View style={styles.container}>
+        <View style={styles.headerContainer}>
+          <Text style={styles.headerText}>사용자 프로필 야매 수정 페이지</Text>
+        </View>
+        <ImageUploadComponent onImageUploaded={handleImageUpload} />
+        <NameUploadComponent userEmail={userEmail} />
+        <AddressUploadComponent userEmail={userEmail} />
+        {uploadedImageText}
+      </View>
+    </ScrollView>
   );
 };
+
+const styles = StyleSheet.create({
+  scrollView: {
+    flex: 1,
+    backgroundColor: 'orange',
+  },
+  container: {
+    justifyContent: 'flex-start',
+    paddingVertical: 20,
+  },
+  headerContainer: {
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  headerText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'blue',
+  },
+});
 
 export default UserProfile;

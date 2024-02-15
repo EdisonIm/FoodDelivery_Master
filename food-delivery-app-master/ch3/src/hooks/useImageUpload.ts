@@ -3,10 +3,11 @@ import axios, {AxiosError} from 'axios';
 import Config from 'react-native-config';
 import {Asset} from 'react-native-image-picker';
 
-function useImageUpload() {
+function useImageUpload(onImageUploaded: (url: string) => void) {
   const [image, setImage] = useState<Asset | null>(null);
   const [imageUrl, setImageUrl] = useState('');
   const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState('');
 
   const handleUploadImage = async (email: string) => {
     if (!image) {
@@ -16,8 +17,8 @@ function useImageUpload() {
     const formData = new FormData();
     formData.append('multipartFile', {
       uri: image.uri,
-      type: image.type || 'image/jpeg', // MIME 타입을 설정
-      name: image.fileName || 'upload.jpg', // 파일 이름 설정
+      type: image.type || 'image/jpeg',
+      name: image.fileName || 'upload.jpg',
     });
     formData.append('email', email);
 
@@ -33,28 +34,28 @@ function useImageUpload() {
         },
       );
 
-      setIsUploading(false);
-      if (
-        response.data &&
-        response.data.image &&
-        response.data.image.location
-      ) {
-        // 'image.location'에서 이미지의 URL을 추출하여 상태에 저장합니다.
-        setImageUrl(response.data.image.location);
+      if (response.data) {
+        if (response.data.image) {
+          const {location} = response.data.image;
+          if (location) {
+            setImageUrl(location);
+            onImageUploaded(location);
+          }
+        }
       }
     } catch (error) {
       const e = error as AxiosError;
-
+      let errorMessage = '업로드 실패: ';
       if (e.response) {
-        // 서버 응답이 있는 경우의 에러 처리
-        console.error('에러 상태 코드:', e.response.status);
+        errorMessage += `에러 상태 코드: ${e.response.status}`;
       } else if (e.request) {
-        // 요청은 이루어졌지만 응답을 받지 못한 경우
-        console.error('응답을 받지 못함:', e.request);
+        errorMessage += '서버 응답 없음';
       } else {
-        // 요청 설정 중에 문제가 발생한 경우
-        console.error('요청 오류:', e.message);
+        errorMessage += e.message;
       }
+      setUploadError(errorMessage);
+    } finally {
+      setIsUploading(false);
     }
   };
 
@@ -63,6 +64,7 @@ function useImageUpload() {
     imageUrl,
     isUploading,
     setImage,
+    uploadError,
   };
 }
 
