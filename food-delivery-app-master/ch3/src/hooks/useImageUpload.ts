@@ -1,20 +1,19 @@
 import {useState} from 'react';
-import axios from 'axios';
+import axios, {AxiosError} from 'axios';
 import Config from 'react-native-config';
+import {Asset} from 'react-native-image-picker';
 
 function useImageUpload() {
-  const [image, setImage] = useState(null);
+  const [image, setImage] = useState<Asset | null>(null);
   const [imageUrl, setImageUrl] = useState('');
   const [isUploading, setIsUploading] = useState(false);
 
-  const handleUploadImage = async email => {
+  const handleUploadImage = async (email: string) => {
     if (!image) {
       return;
     }
 
     const formData = new FormData();
-    // 'uri', 'type', 'name'은 이미지 파일의 상세 정보를 포함해야 함
-    // 'uri'는 로컬 파일 시스템의 이미지 경로, 'type'은 MIME 타입, 'name'은 파일 이름
     formData.append('multipartFile', {
       uri: image.uri,
       type: image.type || 'image/jpeg', // MIME 타입을 설정
@@ -44,18 +43,17 @@ function useImageUpload() {
         setImageUrl(response.data.image.location);
       }
     } catch (error) {
-      setIsUploading(false);
-      // 에러 처리 로직은 이전과 동일
+      const e = error as AxiosError;
 
-      if (error.response) {
+      if (e.response) {
         // 서버 응답이 있는 경우의 에러 처리
-        console.error('에러 상태 코드:', error.response.status);
-      } else if (error.request) {
+        console.error('에러 상태 코드:', e.response.status);
+      } else if (e.request) {
         // 요청은 이루어졌지만 응답을 받지 못한 경우
-        console.error('응답을 받지 못함:', error.request);
+        console.error('응답을 받지 못함:', e.request);
       } else {
         // 요청 설정 중에 문제가 발생한 경우
-        console.error('요청 오류:', error.message);
+        console.error('요청 오류:', e.message);
       }
     }
   };
