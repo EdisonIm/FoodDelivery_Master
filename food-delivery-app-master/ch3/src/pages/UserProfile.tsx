@@ -3,6 +3,7 @@ import {View, Text, StyleSheet, ScrollView} from 'react-native';
 import ImageUploadComponent from '../components/ImageUploadComponent';
 import NameUploadComponent from '../components/NameUploadComponent';
 import AddressUploadComponent from '../components/AddressUploadComponent';
+import PhoneNumberComponent from '../components/PhoneNumberComponent'; // PhoneNumberComponent 추가
 
 const UserProfile = () => {
   const userEmail = 'user@example.com';
@@ -29,6 +30,7 @@ const UserProfile = () => {
         <ImageUploadComponent onImageUploaded={handleImageUpload} />
         <NameUploadComponent userEmail={userEmail} />
         <AddressUploadComponent userEmail={userEmail} />
+        <PhoneNumberComponent userEmail={userEmail} />
         {uploadedImageText}
       </View>
     </ScrollView>
