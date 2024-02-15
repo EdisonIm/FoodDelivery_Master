@@ -1,8 +1,14 @@
 import React, {useState} from 'react';
-import {Button, View, Text, TouchableOpacity, TextInput} from 'react-native';
+import {
+  Button,
+  View,
+  Text,
+  TouchableOpacity,
+  TextInput,
+  StyleSheet,
+} from 'react-native';
 import {launchImageLibrary} from 'react-native-image-picker';
 import useImageUpload from '../hooks/useImageUpload';
-import {StyleSheet} from 'react-native';
 
 const ImageUploadComponent = ({
   onImageUploaded,
@@ -10,7 +16,7 @@ const ImageUploadComponent = ({
   onImageUploaded: (url: string) => void;
 }) => {
   const {handleUploadImage, imageUrl, isUploading, setImage} = useImageUpload();
-  const [email, setEmail] = useState(''); // 추가된 상태
+  const [email, setEmail] = useState('');
 
   const handleSelectPress = () => {
     launchImageLibrary({mediaType: 'photo'}, response => {
@@ -35,54 +41,55 @@ const ImageUploadComponent = ({
   return (
     <View style={styles.container}>
       <TextInput
-        placeholder="이메일 주소 입력"
+        style={styles.textInput}
+        placeholder="이메일 주소"
         value={email}
         onChangeText={setEmail}
-        style={styles.textInput}
-        keyboardType="email-address" // 이메일 입력을 위한 키보드 타입 설정
-        autoCapitalize="none" // 자동 대문자 변환 비활성화
+        keyboardType="email-address"
       />
-      <TouchableOpacity onPress={handleSelectPress}>
-        <Text style={styles.label}>사진 선택하기(누르셈^_^)</Text>
+      <TouchableOpacity style={styles.button} onPress={handleSelectPress}>
+        <Text style={styles.buttonText}>사진 선택하기</Text>
       </TouchableOpacity>
       <Button
         onPress={handleUploadPress}
         title="사진 올리기"
-        disabled={isUploading || !email} // 이메일이 없을 때 업로드 버튼 비활성화
+        disabled={isUploading || !email}
       />
-      {isUploading ? (
-        <Text>업로드 중...^_^;;</Text>
-      ) : imageUrl ? (
-        <Text>업로드 완료!! : {imageUrl}</Text>
-      ) : null}
+
+      {/* isUploading이 true일 때 "업로드 중..." 텍스트 표시 */}
+      {isUploading ? <Text>업로드 중...</Text> : null}
+
+      {/* imageUrl이 존재할 때 "업로드 완료: [URL]" 텍스트 표시 */}
+      {imageUrl ? <Text>업로드 완료: {imageUrl}</Text> : null}
     </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'pink',
+    padding: 20,
+    backgroundColor: '#eee',
+    borderRadius: 10,
     alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20, // 조정된 스타일
   },
   textInput: {
-    height: 40, // 높이 설정
-    marginVertical: 10, // 위아래 마진 추가
-    width: '80%', // 넓이 설정
-    borderColor: 'gray', // 테두리 색상
-    borderWidth: 1, // 테두리 두께
-    paddingHorizontal: 10, // 내부 좌우 패딩
+    width: '100%',
+    height: 40,
+    borderColor: '#ccc',
+    borderWidth: 1,
+    borderRadius: 5,
+    marginBottom: 10,
+    paddingHorizontal: 10,
   },
-  label: {
+  button: {
+    backgroundColor: '#0066cc',
+    padding: 10,
+    borderRadius: 5,
+    marginBottom: 10,
+  },
+  buttonText: {
+    color: 'white',
     fontWeight: 'bold',
-    fontSize: 20, // 글씨 크기 조정
-    color: 'red', // 글씨 색상 변경
-    marginVertical: 10, // 위아래 마진 추가
-  },
-  buttonZone: {
-    alignItems: 'center',
-    marginTop: 20, // 버튼 위의 마진 추가
   },
 });
 
